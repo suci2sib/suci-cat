@@ -10,7 +10,7 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        //
+        //return view ('home-question-respon',$data);
     }
 
     /**
@@ -35,6 +35,16 @@ class QuestionController extends Controller
             'nama.required' => 'Nama Tidak Boleh Kosong',
             'email.email'   => 'email tidak valid',
         ]);
+            $data['nama']  = $request ->nama;
+            $data['email']  = $request ->email;
+            $data['pertanyaan'] = $request->partanyaan;
+
+        return redirect()->route('home')
+            ->with('info', 'Terimaksih atas pertanyaannya <b>' . $data['nama'] . '</b>!
+                silahkan cek email anda di <b>' . $data['email'] . '</b> untuk info lebih lanjut');
+
+        //return view('home-question-respon', $request);
+        //return redirect()->back();
     }
 
     /**
