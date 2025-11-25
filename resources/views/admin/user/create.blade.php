@@ -1,7 +1,7 @@
-@extends('layouts.admin.app')
+user create @extends('layouts.admin.app')
 
 @section('content')
-    {{-- start main content --}}
+    {{-- START MAIN CONTENT --}}
     <div class="py-4">
         <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
             <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
@@ -22,7 +22,7 @@
         <div class="d-flex justify-content-between w-100 flex-wrap">
             <div class="mb-3 mb-lg-0">
                 <h1 class="h4">Tambah User</h1>
-                <p class="mb-0">Form untuk menambahkan data baru.</p>
+                <p class="mb-0">Form untuk menambahkan data User baru.</p>
             </div>
             <div>
                 <a href="{{ route('user.index') }}" class="btn btn-primary"><i class="far fa-question-circle me-1"></i>
@@ -39,40 +39,45 @@
         <div class="col-12 mb-4">
             <div class="card border-0 shadow components-section">
                 <div class="card-body">
-                    <form action="{{ route('user.store') }}" method="POST">
+                    <form action="{{ route('user.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row mb-4">
                             <div class="col-lg-4 col-sm-6">
+                                <!-- Profile Picture -->
+                                <div class="mb-3">
+                                    <label for="profile_picture" class="form-label">Foto Profil</label>
+                                    <input type="file" id="profile_picture" class="form-control" name="profile_picture" accept="image/*">
+                                    <small class="text-muted">Format: JPEG, PNG, JPG, GIF (Max: 2MB)</small>
+                                </div>
+
                                 <!-- Name -->
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">name</label>
-                                    <input type="name" id="name" class="form-control" name="name"
-                                        value="{{ old('name') }}" required>
+                                    <label for="name" class="form-label">Name</label>
+                                    <input type="text" id="name" class="form-control" required name="name">
                                 </div>
 
                                 <!-- Email -->
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="text" id="email" class="form-control" required name="email"
-                                        value="{{ old('email') }}">
+                                    <input type="text" id="email" class="form-control" required name="email">
                                 </div>
+                            </div>
 
+                            <div class="col-lg-4 col-sm-6">
                                 <!-- Password -->
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Password</label>
-                                    <input type="password" id="password" class="form-control" name="password"
-                                        value="{{ old('password') }}">
+                                    <input type="password" id="password" class="form-control" name="password">
                                 </div>
 
-                                <!-- confirm password -->
+                                <!-- Password Confirmation -->
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Konfirmasi Password<label>
-                                            <input type="password" id="password" class="form-control" name="password"
-                                                value="{{ old('password') }}">
+                                    <label for="password_confirmation" class="form-label">Password Confirmation</label>
+                                    <input type="password" id="password_confirmation" class="form-control" name="password_confirmation">
                                 </div>
 
                                 <!-- Buttons -->
-                                <div class="">
+                                <div class="mt-4">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                     <a href="{{ route('user.index') }}" class="btn btn-outline-secondary ms-2">Batal</a>
                                 </div>
@@ -80,9 +85,8 @@
                         </div>
                     </form>
                 </div>
-
             </div>
         </div>
     </div>
-    {{-- end main content --}}
+    {{-- END MAIN CONTENT --}}
 @endsection

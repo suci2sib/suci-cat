@@ -1,26 +1,21 @@
 <?php
+// app/Http/Controllers/PelangganController.php
 namespace App\Http\Controllers;
 
 use App\Models\Pelanggan;
+use App\Models\Multipleuploads;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PelangganController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $filterableColumns = ['gender'];
-
-        $searchableColumns = ['first_name'];
-
-        $pageData['dataPelanggan'] = Pelanggan::filter($request, $filterableColumns)
-        ->search($request,$searchableColumns)
-        ->paginate(10)
-        ->withQueryString();
-
-        return view('admin.pelanggan.index', $pageData);
+        $data['dataPelanggan'] =  Pelanggan::paginate(10);
+        return view('admin.pelanggan.index', $data);
     }
 
     /**
@@ -36,17 +31,47 @@ class PelangganController extends Controller
      */
     public function store(Request $request)
     {
-        //dd($request->all());
-        $data['first_name'] = $request->first_name;
-        $data['last_name']  = $request->last_name;
-        $data['birthday']   = $request->birthday;
-        $data['gender']     = $request->gender;
-        $data['email']      = $request->email;
-        $data['phone']      = $request->phone;
+        $request->validate([
+            'first_name' => 'required|string|max:200',
+            'last_name' => 'required|string|max:100',
+            'birthday' => 'nullable|date',
+            'gender' => 'nullable|in:Male,Female,Other',
+            'email' => 'required|email|unique:pelanggan',
+            'phone' => 'nullable|string|max:20',
+            'files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt|max:2048',
+        ]);
 
-        Pelanggan::create($data);
+        // Simpan data pelanggan
+        $pelanggan = Pelanggan::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'birthday' => $request->birthday,
+            'gender' => $request->gender,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
 
-        return redirect()->route('pelanggan.index')->with('success', 'Penambahan Data Berhasil!');
+        // Handle multiple file uploads
+        if ($request->hasfile('files')) {
+            $files = [];
+            foreach ($request->file('files') as $file) {
+                if ($file->isValid()) {
+                    $filename = round(microtime(true) * 1000) . '-' . str_replace(' ', '-', $file->getClientOriginalName());
+                    $file->move(public_path('uploads'), $filename);
+                    
+                    $files[] = [
+                        'filename' => $filename,
+                        'ref_table' => 'pelanggan',
+                        'ref_id' => $pelanggan->pelanggan_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Multipleuploads::insert($files);
+        }
+
+        return redirect()->route('pelanggan.index')->with('success', 'Data Pelanggan berhasil ditambahkan!');
     }
 
     /**
@@ -54,7 +79,8 @@ class PelangganController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $data['pelanggan'] = Pelanggan::with('files')->findOrFail($id);
+        return view('admin.pelanggan.detail', $data);
     }
 
     /**
@@ -62,7 +88,7 @@ class PelangganController extends Controller
      */
     public function edit(string $id)
     {
-        $data['dataPelanggan'] = Pelanggan::findOrFail($id);
+        $data['pelanggan'] = Pelanggan::with('files')->findOrFail($id);
         return view('admin.pelanggan.edit', $data);
     }
 
@@ -71,18 +97,48 @@ class PelangganController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $pelanggan_id = $id;
-        $pelanggan    = Pelanggan::findOrFail($pelanggan_id);
+        $pelanggan = Pelanggan::findOrFail($id);
 
-        $pelanggan->first_name = $request->first_name;
-        $pelanggan->last_name  = $request->last_name;
-        $pelanggan->birthday   = $request->birthday;
-        $pelanggan->gender     = $request->gender;
-        $pelanggan->email      = $request->email;
-        $pelanggan->phone      = $request->phone;
+        $request->validate([
+            'first_name' => 'required|string|max:200',
+            'last_name' => 'required|string|max:100',
+            'birthday' => 'nullable|date',
+            'gender' => 'nullable|in:Male,Female,Other',
+            'email' => 'required|email|unique:pelanggan,email,' . $id . ',pelanggan_id',
+            'phone' => 'nullable|string|max:20',
+            'files.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx,txt|max:2048',
+        ]);
 
-        $pelanggan->save();
-        return redirect()->route('pelanggan.index')->with('success', 'Perubahan Data Berhasil!');
+        $pelanggan->update([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'birthday' => $request->birthday,
+            'gender' => $request->gender,
+            'email' => $request->email,
+            'phone' => $request->phone,
+        ]);
+
+        // Handle multiple file uploads
+        if ($request->hasfile('files')) {
+            $files = [];
+            foreach ($request->file('files') as $file) {
+                if ($file->isValid()) {
+                    $filename = round(microtime(true) * 1000) . '-' . str_replace(' ', '-', $file->getClientOriginalName());
+                    $file->move(public_path('uploads'), $filename);
+                    
+                    $files[] = [
+                        'filename' => $filename,
+                        'ref_table' => 'pelanggan',
+                        'ref_id' => $pelanggan->pelanggan_id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+            Multipleuploads::insert($files);
+        }
+
+        return redirect()->route('pelanggan.detail', $id)->with('success', 'Data Pelanggan berhasil diupdate!');
     }
 
     /**
@@ -92,7 +148,40 @@ class PelangganController extends Controller
     {
         $pelanggan = Pelanggan::findOrFail($id);
 
+        // Hapus file-file yang terkait
+        $files = Multipleuploads::where('ref_table', 'pelanggan')
+                               ->where('ref_id', $pelanggan->pelanggan_id)
+                               ->get();
+
+        foreach ($files as $file) {
+            if (file_exists(public_path('uploads/' . $file->filename))) {
+                unlink(public_path('uploads/' . $file->filename));
+            }
+            $file->delete();
+        }
+
         $pelanggan->delete();
-        return redirect()->route('pelanggan.index')->with('success', 'Data berhasil dihapus');
+
+        return redirect()->route('pelanggan.index')->with('success', 'Data Pelanggan berhasil dihapus!');
+    }
+
+    /**
+     * Hapus file individual
+     */
+    public function deleteFile(Request $request, string $id)
+    {
+        $file = Multipleuploads::findOrFail($id);
+        
+        // Pastikan file milik pelanggan yang dimaksud
+        if ($file->ref_table === 'pelanggan') {
+            if (file_exists(public_path('uploads/' . $file->filename))) {
+                unlink(public_path('uploads/' . $file->filename));
+            }
+            $file->delete();
+            
+            return response()->json(['success' => true, 'message' => 'File berhasil dihapus']);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'File tidak ditemukan'], 404);
     }
 }

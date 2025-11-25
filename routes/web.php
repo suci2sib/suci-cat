@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\MatakuliahController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('admin.dashboard');
@@ -42,6 +43,16 @@ Route::post('question/store', [QuestionController::class, 'store'])
 Route::get('dashboard', [DashboardController::class, 'index'])
        ->name('dashboard');
 
-Route::resource('pelanggan', PelangganController::class);
+
 
 Route::resource('user', UserController::class);
+
+Route::resource('pelanggan', PelangganController::class);
+Route::delete('/pelanggan-file/{id}', [PelangganController::class, 'deleteFile'])
+    ->name('pelanggan.deleteFile');
+
+
+Route::resource('pelanggan', PelangganController::class);
+
+Route::get('/pelanggan/{id}/detail', [PelangganController::class, 'show'])
+    ->name('pelanggan.detail');

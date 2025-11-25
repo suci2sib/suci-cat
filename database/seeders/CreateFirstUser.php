@@ -5,19 +5,17 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CreateFirstUser extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'suci24si@mahasiswa.pcr.ac.id',
-            'password' => Hash::make('suci24si')
-        ]);
+        for ($i = 1; $i <= 15; $i++) {
+            User::create([
+                'name' => 'User ' . $i,
+                'email' => 'user' . $i . '@example.com',
+                'password' => Hash::make('password' . $i),
+            ]);
+        }
     }
 }

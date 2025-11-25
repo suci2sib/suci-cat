@@ -14,7 +14,8 @@ class CreatePelangganDummy extends Seeder
     {
         $faker = Factory::create();
 
-        foreach (range(1, 100) as $index) {
+        // Generate 15 data dummy
+        foreach (range(1, 15) as $index) {
             DB::table('pelanggan')->insert([
                 'first_name' => $faker->firstName,
                 'last_name'  => $faker->lastName,
