@@ -1,14 +1,15 @@
 <?php
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\MatakuliahController;
-use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('admin.dashboard');
@@ -56,3 +57,6 @@ Route::resource('pelanggan', PelangganController::class);
 
 Route::get('/pelanggan/{id}/detail', [PelangganController::class, 'show'])
     ->name('pelanggan.detail');
+
+Route::get('auth',[AuthController::class, 'index'])->name('auth');
+Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
