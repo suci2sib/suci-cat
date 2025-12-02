@@ -13,18 +13,18 @@ class UserController extends Controller
      */
     public function index()
     {
-        $data['dataUser'] = User::paginate(10); 
+        $data['dataUser'] = User::paginate(10);
         return view('admin.user.index', $data);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-  public function create()
-{
-    $dataUser = User::paginate(10);
-    return view('admin.user.create', compact('dataUser'));
-}
+    public function create()
+    {
+        $dataUser = User::paginate(10);
+        return view('admin.user.create', compact('dataUser'));
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -32,21 +32,23 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed|min:6',
+            'name'            => 'required|string|max:255',
+            'email'           => 'required|email|unique:users',
+            'password'        => 'required|confirmed|min:6',
+            'role'            => 'required|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $data = [
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'role'     => $request->role,
             'password' => Hash::make($request->password),
         ];
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $path                    = $request->file('profile_picture')->store('profile_pictures', 'public');
             $data['profile_picture'] = $path;
         }
 
@@ -80,13 +82,13 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|confirmed|min:6',
+            'name'            => 'required|string|max:255',
+            'email'           => 'required|email|unique:users,email,' . $id,
+            'password'        => 'nullable|confirmed|min:6',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $user->name = $request->name;
+        $user->name  = $request->name;
         $user->email = $request->email;
 
         // Update password jika diisi
@@ -100,8 +102,8 @@ class UserController extends Controller
             if ($user->profile_picture) {
                 Storage::disk('public')->delete($user->profile_picture);
             }
-            
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+
+            $path                  = $request->file('profile_picture')->store('profile_pictures', 'public');
             $user->profile_picture = $path;
         }
 

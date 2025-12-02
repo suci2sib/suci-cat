@@ -75,7 +75,16 @@ user create @extends('layouts.admin.app')
                                     <label for="password_confirmation" class="form-label">Password Confirmation</label>
                                     <input type="password" id="password_confirmation" class="form-control" name="password_confirmation">
                                 </div>
-
+                                <!-- Role -->
+                                 <div class="mb-3">
+                                    <label for="role" class="form-label">Role</label>
+                                    <select id="role" name="role" class="form-select">
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="Pelanggan">Pelanggan</option>
+                                        <option value="Mitra">Mitra</option>
+                                    </select>
+                                </div>
                                 <!-- Buttons -->
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
